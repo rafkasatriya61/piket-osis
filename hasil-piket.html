@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Monitoring Laporan Guru | OSIS</title>
+    <link rel="stylesheet" href="https://rafkasatriya61.github.io/pusat-css/hasil.css">
+    <style>
+        .filter-container { text-align: center; margin-bottom: 20px; }
+        #filter-tanggal {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid #25D366;
+            padding: 12px;
+            border-radius: 10px;
+            width: 85%;
+            max-width: 400px;
+            backdrop-filter: blur(10px);
+            font-size: 14px;
+        }
+        #filter-tanggal option { background: #1a1a1a; color: white; }
+        #filter-info {
+            text-align: center; font-size: 0.95em; margin-bottom: 10px; 
+            color: #25D366; font-weight: bold;
+        }
+        .time-cell { font-size: 0.85em; line-height: 1.3; }
+        .date-bold { font-weight: bold; color: #fff; display: block; }
+        .hour-dim { color: #aaa; display: block; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="login-guru" class="glass-effect">
+            <h2>Portal Monitoring</h2>
+            <form id="form-login-guru">
+                <input type="text" id="nama-guru" placeholder="Username" required>
+                <input type="password" id="pass-guru" placeholder="Password" required>
+                <button type="submit" class="btn-send">Masuk & Lihat Data</button>
+            </form>
+        </div>
+
+        <div id="data-laporan" class="glass-effect" style="display: none; max-width: 95%; width: 950px;">
+            <h2 style="margin-bottom: 5px;">Hasil Laporan</h2>
+            <p id="filter-info"></p>
+            
+            <div class="filter-container">
+                <select id="filter-tanggal">
+                    <option value="Semua">-- Pilih Tanggal --</option>
+                </select>
+            </div>
+            
+            <div class="table-container">
+                <table id="tabel-hasil">
+                    <thead>
+                        <tr>
+                            <th>WAKTU & TGL</th>
+                            <th>NAMA SISWA</th>
+                            <th>PELANGGARAN</th>
+                            <th>PETUGAS</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabel-body"></tbody>
+                </table>
+            </div>
+            
+            <button onclick="location.reload()" class="btn-logout" style="margin-top: 25px;">Keluar Dashboard</button>
+        </div>
+    </div>
+
+    <script>
+        const csvUrl = "https://docs.google.com/spreadsheets/d/165QaH8Lg2P8TXn30V4Xm95QNUfgZqMirty9B5GetGv8/export?format=csv";
+        let allDataRows = []; 
+        let currentKelas = "", currentJurusan = "", currentUser = "";
+
+        const akunGuru = {
+            "walas 10 tkr": "10 tkr", "walas 10 mp": "10 mp", "walas 10 tkj": "10 tkj",
+            "walas 11 tkr": "11 tkr", "walas 11 mp": "11 mp", "walas 11 tkj": "11 tkj",
+            "walas 12 tkr": "12 tkr", "walas 12 mp": "12 mp", "walas 12 tkj": "12 tkj", "guru bk": "guru bk"
+        };
+
+        // FUNGSI BARU: Lebih simpel dan lebih akurat membagi Tanggal & Jam
+        function parseDateTime(input) {
+            if (!input) return { tgl: "N/A", jam: "" };
+            let str = input.replace(/"/g, '').trim();
+            
+            // Mencoba membagi berdasarkan spasi (Asumsi: Tanggal Jam atau Jam Tanggal)
+            let parts = str.split(' ');
+            
+            let tgl = "N/A";
+            let jam = "";
+
+            parts.forEach(p => {
+                if (p.includes('/') || p.includes('-') || p.includes('.')) {
+                    tgl = p; // Ini adalah tanggal
+                } else if (p.includes(':')) {
+                    jam = p; // Ini adalah jam
+                }
+            });
+
+            // Jika masih N/A, ambil saja bagian pertama sebagai tanggal
+            if (tgl === "N/A") tgl = parts[0];
+
+            return { tgl, jam };
+        }
+
+        document.getElementById('form-login-guru').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('nama-guru').value.toLowerCase().trim();
+            const pass = document.getElementById('pass-guru').value.toLowerCase().trim();
+            if (akunGuru[user] === pass) {
+                const parts = pass.split(' ');
+                currentKelas = parts[0];
+                currentJurusan = parts.slice(1).join(' ').toUpperCase();
+                currentUser = user;
+                loadData();
+            } else { alert("❌ Login Gagal!"); }
+        });
+
+        async function loadData() {
+            try {
+                const response = await fetch(csvUrl);
+                const csvText = await response.text();
+                
+                // Mendeteksi apakah CSV pakai koma atau titik koma
+                let delimiter = csvText.includes(';') ? ';' : ',';
+                
+                let lines = csvText.split(/\r?\n/).filter(l => l.trim() !== "");
+                let rows = lines.slice(1).reverse(); // Data terbaru di atas
+                
+                allDataRows = rows;
+                updateTanggalDropdown();
+                renderTable("Semua");
+
+                document.getElementById('login-guru').style.display = 'none';
+                document.getElementById('data-laporan').style.display = 'block';
+            } catch (err) { alert("Gagal koneksi ke database!"); }
+        }
+
+        function updateTanggalDropdown() {
+            const dropdown = document.getElementById('filter-tanggal');
+            const setTanggal = new Set(); 
+
+            allDataRows.forEach(row => {
+                let cols = row.split(/[,;]/); // Membagi berdasarkan koma atau titik koma
+                if(cols[0]) {
+                    const { tgl } = parseDateTime(cols[0]);
+                    setTanggal.add(tgl);
+                }
+            });
+
+            dropdown.innerHTML = '<option value="Semua">-- Tampilkan Semua Tanggal --</option>';
+            setTanggal.forEach(tgl => {
+                const option = document.createElement('option');
+                option.value = tgl;
+                option.textContent = tgl;
+                dropdown.appendChild(option);
+            });
+        }
+
+        function renderTable(filterTgl) {
+            const tbody = document.querySelector('#tabel-body');
+            tbody.innerHTML = '';
+            let count = 0;
+
+            allDataRows.forEach(row => {
+                let cols = row.match(/(".*?"|[^",;]+)(?=[,;]|$)/g) || [];
+                
+                if (cols.length >= 4) {
+                    const { tgl, jam } = parseDateTime(cols[0]);
+                    const rowKelas = (cols[2] || "").replace(/"/g, '').trim();
+                    const rowJurusan = (cols[3] || "").replace(/"/g, '').trim().toUpperCase();
+
+                    const matchUser = (currentUser === "guru bk" || (rowKelas === currentKelas && rowJurusan === currentJurusan));
+                    const matchDate = (filterTgl === "Semua" || tgl === filterTgl);
+
+                    if (matchUser && matchDate) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td class="time-cell">
+                                <span class="date-bold">${tgl}</span>
+                                <span class="hour-dim">${jam}</span>
+                            </td>
+                            <td style="font-weight: 600; color: #fff;">${(cols[1] || "-").replace(/"/g, '')}</td>
+                            <td style="font-style: italic; color: #ff9f43;">${(cols[4] || "-").replace(/"/g, '')}</td>
+                            <td>${(cols[5] || "-").replace(/"/g, '')}</td>
+                        `;
+                        tbody.appendChild(tr);
+                        count++;
+                    }
+                }
+            });
+            document.getElementById('filter-info').innerText = `Ditemukan ${count} Laporan Laporan`;
+        }
+
+        document.getElementById('filter-tanggal').addEventListener('change', (e) => renderTable(e.target.value));
+    </script>
+</body>
+</html>
+
