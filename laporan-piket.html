@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Laporan Piket</title>
+    <link rel="stylesheet" href="https://rafkasatriya61.github.io/pusat-css/piketosis.css">
+</head>
+<body>
+
+    <div id="login-page" class="container">
+        <div class="glass-effect">
+            <h2>Piket Login</h2>
+            <form id="login-form">
+                <input type="text" id="username" placeholder="Username Petugas" required>
+                <input type="password" id="password" placeholder="Password" required>
+                <button type="submit">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="report-page" class="container" style="display: none;">
+        <div class="glass-effect">
+            <h2>Laporan Pelanggaran</h2>
+            <form id="report-form">
+                <input type="text" id="nama" placeholder="Nama Siswa" required>
+
+                <div class="form-group">
+                    <label>Kelas:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="kelas" value="10" required> 10</label>
+                        <label><input type="radio" name="kelas" value="11"> 11</label>
+                        <label><input type="radio" name="kelas" value="12"> 12</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Jurusan:</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="jurusan" value="TKR" required> TKR</label>
+                        <label><input type="radio" name="jurusan" value="TKJ"> TKJ</label>
+                        <label><input type="radio" name="jurusan" value="MP"> MP</label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Jenis Pelanggaran:</label>
+                    <div class="check-item">
+                        <input type="checkbox" name="pelanggaran" value="Terlambat"> Terlambat
+                    </div>
+                    <div class="check-item">
+                        <input type="checkbox" name="pelanggaran" value="Kaos kaki tidak sesuai"> Kaos Kaki Tidak Sesuai
+                    </div>
+                    <div class="check-item">
+                        <input type="checkbox" name="pelanggaran" value="Tidak memakai topi"> Tidak Memakai Topi (Senin)
+                    </div>
+                    <div class="check-item">
+                        <input type="checkbox" name="pelanggaran" value="Tidak memakai dasi"> Tidak Memakai Dasi (Senin)
+                    </div>
+                    <div class="check-item">
+                        <input type="checkbox" name="pelanggaran" value="Tidak memakai badge"> Tidak Memakai Badge (Senin)
+                    </div>
+                </div>
+
+                <input type="text" id="pelanggaran-lain" placeholder="Pelanggaran lainnya...">
+
+                <button type="submit" class="btn-send">Kirim Laporan</button>
+                <button type="button" onclick="location.reload()" class="btn-logout">Logout</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://rafkasatriya61.github.io/pusat-js/piketosis.js"></script>
+</body>
+</html>
