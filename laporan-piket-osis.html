@@ -14,8 +14,14 @@
             <h2>Piket Login</h2>
             <form id="login-form">
                 <input type="text" id="username" placeholder="Username Petugas" required>
-                <input type="password" id="password" placeholder="Password" required>
+                
+                <div class="password-wrapper">
+                    <input type="password" id="password" placeholder="Password" required>
+                    <span id="eye-icon" class="toggle-eye">👁️</span>
+                </div>
+                
                 <button type="submit">Masuk</button>
+                <a id="btn-lupa-pass" class="forgot-password">Lupa Password? Hubungi Bot</a>
             </form>
         </div>
     </div>
@@ -46,31 +52,28 @@
 
                 <div class="form-group">
                     <label>Jenis Pelanggaran:</label>
-                    <div class="check-item">
-                        <input type="checkbox" name="pelanggaran" value="Terlambat"> Terlambat
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" name="pelanggaran" value="Kaos kaki tidak sesuai"> Kaos Kaki Tidak Sesuai
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" name="pelanggaran" value="Tidak memakai topi"> Tidak Memakai Topi (Senin)
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" name="pelanggaran" value="Tidak memakai dasi"> Tidak Memakai Dasi (Senin)
-                    </div>
-                    <div class="check-item">
-                        <input type="checkbox" name="pelanggaran" value="Tidak memakai badge"> Tidak Memakai Badge (Senin)
-                    </div>
+                    <div class="check-item"><input type="checkbox" name="pelanggaran" value="Terlambat"> Terlambat</div>
+                    <div class="check-item"><input type="checkbox" name="pelanggaran" value="Kaos kaki tidak sesuai"> Kaos Kaki Tidak Sesuai</div>
+                    <div class="check-item"><input type="checkbox" name="pelanggaran" value="Tidak memakai topi"> Tidak Memakai Topi (Senin)</div>
+                    <div class="check-item"><input type="checkbox" name="pelanggaran" value="Tidak memakai dasi"> Tidak Memakai Dasi (Senin)</div>
+                    <div class="check-item"><input type="checkbox" name="pelanggaran" value="Tidak memakai badge"> Tidak Memakai Badge (Senin)</div>
                 </div>
 
                 <input type="text" id="pelanggaran-lain" placeholder="Pelanggaran lainnya...">
 
-                <button type="submit" class="btn-send">Kirim Laporan</button>
+                <button type="submit" id="btn-submit" class="btn-send">Kirim Laporan</button>
+                <button type="button" id="wa-error-btn" onclick="laporWA()">💬 Laporan Gagal, Hubungi Dev</button>
                 <button type="button" onclick="location.reload()" class="btn-logout">Logout</button>
             </form>
         </div>
     </div>
 
-    <script src="https://rafkasatriya61.github.io/pusat-js/piketosis.js"></script>
+    <div id="notification">
+        <span id="notif-icon">✅</span> 
+        <span id="notif-message">Pesan</span>
+    </div>
+
+    <script src="https://rafkasatriya61.github.io/pusat-js/piket-osis.js"></script>
 </body>
 </html>
+
